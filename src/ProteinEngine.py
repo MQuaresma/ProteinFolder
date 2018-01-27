@@ -12,7 +12,7 @@ class ProteinEngine:
     def setseq(self, seq):
         self.sequence = seq
         
-    def seq_valida(self, seq_a_verificar):
+    def validSeq(self, seq_a_verificar):
         car_validos = "AB()123456789"
         car_obrigatorios="AB" 
         min_car=False
@@ -92,7 +92,7 @@ class ProteinEngine:
         return Matriz
     
     #TODO 
-    #def do_dobrar(self,arg):
+    #def fold(self,arg):
 
     def validate(self):
         L1=self.coordinates
@@ -108,7 +108,7 @@ class ProteinEngine:
             i+=1
         return (ort and (not sobreposed))
     
-    def do_compactar(self, arg):
+    def compress(self, arg):
         comp=''
         pd1="AB" 
         pd2="BA"
@@ -142,7 +142,7 @@ class ProteinEngine:
         return comp
     
     
-    def do_descompactar(self,arg):
+    def decompress(self,arg):
         desc=''
         temp=''
         i=0
@@ -166,12 +166,12 @@ class ProteinEngine:
         return desc
 
 
-    def do_gravar(self, arg):
+    def saveConfig(self, arg):
         myfile=open(arg,'w') 
         myfile.write(self.getseq()+'\n'+self.getcoord())
         myfile.close()
         
-    def do_ler(self, arg):
+    def readConfig(self, arg):
         myfile=open(arg, 'r')
         seq=myfile.readline()
         coords=myfile.readline()
@@ -180,9 +180,9 @@ class ProteinEngine:
         myfile.close()
 
     #TODO
-    #def do_energia(self, arg):
+    #def calcEnergy(self, arg):
           
-    def do_proclocal(self,arg):
+    def localSearch(self,arg):
         board=self.genBoard()
         for i in range(1,len(self.coordinates)): 
             self.procCoord(i,board,arg)
@@ -190,27 +190,34 @@ class ProteinEngine:
     def procCoord(self,aminoIndice, board,arg):
         coordenadas=self.coordinates
         if aminoIndice>=1 and aminoIndice<len(self.coordinates)-1:
-            antes=coordenadas[aminoIndice-1]
-            depois=coordenadas[aminoIndice+1]
+            before=coordenadas[aminoIndice-1]
+            after=coordenadas[aminoIndice+1]
         else:
-            antes=depois=coordenadas[aminoIndice-1]
-        energiaAtual=self.do_energia(arg)
+            before=after=coordenadas[aminoIndice-1]
         curPos=coordenadas[aminoIndice]
+        curEnergy=self.calcLocalEnergy(arg,before,curPos,after,board)
         l1=self.posicoesPossiveis(antes)
         l2=self.posicoesPossiveis(depois)
         pos=self.intersection(l1,l2)
-        if curPos in pos:
-            pos.remove(curPos)
+        pos.remove(curPos)
         for tempCoords in pos:
-            self.coordinates[aminoIndice]=tempCoords
-            tempEnergy=self.do_energia(arg)
-            if tempEnergy>energiaAtual:
-                self.coordinates[aminoIndice]=curPos
+            tempEnergy=self.calcLocalEnergy(arg,tempCoords,board)
+            if tempEnergy>curEnergy:
+                self.coordinates[aminoIndice]=tempCoords
             else:
-                curPos=self.coordinates[aminoIndice]
-                energiaAtual=tempEnergy
+                curPos=tempCoords
+                curEnergy=tempEnergy
 
-    
+    def calcLocalEnergy(self,arg,before,cur,after,board):
+        directions=[[1,0],[-1,0],[0,1],[0,-1]]
+        sPositions=[]
+        for dir in direcions:
+            tempPos=[x+y for (x,y) in zip(cur,dir)]
+            if tempPos not in [before,after] and tempPos in self.coordinates:
+                sPositions.append(tempPos)
+        for amino in sPositions:
+            if self.seq 
+
     def posicoesPossiveis(self,coord): 
         coordenadas=self.coordinates
         direcoes=[[1,0],[-1,0],[0,1],[0,-1]]
@@ -247,7 +254,7 @@ class ProteinEngine:
             board[y][x]=amino
         return board
                        
-    def do_procurar(self,arg):
+    def globalSearch(self,arg):
         maxIter=len(self.sequence)
         energiaDiminui=True
         energiaLast=self.do_energia(arg)
@@ -263,4 +270,4 @@ class ProteinEngine:
                 i+=1
 
     #TODO
-    #def do_reparar(self):
+    #def repair(self):
